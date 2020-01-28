@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Meme generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <canvas height="300" width="300"></canvas>
+        <form action="">
+            <div class="form__input">
+                <label for="topCaption">Górny napis</label>
+                <input type="text" id="topCaption">
+            </div>
+            <div class="form__input">
+                <label for="bottomCaption">Dolny napis</label>
+                <input type="text" id="bottomCaption">
+            </div>
+            <div class="form__input">
+                <label for="linkInput">Link</label>
+                <input type="text" id="linkInput">
+            </div>
+            <a href="" download="image.png">
+                <button type="button">Ściągnij mema</button>
+            </a>
+        </form>
+    </div>
+    <script src="main.js"></script>
+</body>
+
+</html>

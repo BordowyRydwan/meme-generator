@@ -1,0 +1,25 @@
+*{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.app-container{
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+}
+
+canvas{
+    border: 1px gray solid;
+    margin-bottom: 50px;
+}
+
+.form__input{
+    margin-bottom: 20px;
+}
+
+.form__input > *{
+    display: block;
+    width: 300px;
+}
