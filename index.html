@@ -13,21 +13,21 @@
     <div class="app-container">
         <canvas height="300" width="300"></canvas>
         <form action="">
+            <h1>Meme generator</h1>
             <div class="form__input">
-                <label for="topCaption">Górny napis</label>
-                <input type="text" id="topCaption">
+                <input type="text" id="topCaption" placeholder="Top caption">
             </div>
             <div class="form__input">
-                <label for="bottomCaption">Dolny napis</label>
-                <input type="text" id="bottomCaption">
+                <input type="text" id="bottomCaption" placeholder="Bottom caption">
             </div>
             <div class="form__input">
-                <label for="linkInput">Link</label>
-                <input type="text" id="linkInput">
+                <label for="imageFile">Load an image</label>
+                <input type="file" id="imageFile" accept="image/*">
+
+                <a href="" download id="download">
+                    Download
+                </a>
             </div>
-            <a href="" download="image.png" id="download">
-                ŚCIĄGNIJ MEMA
-            </a>
         </form>
     </div>
     <script src="main.js"></script>
