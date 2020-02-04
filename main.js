@@ -48,7 +48,7 @@ const canvasTextRender = () => {
     meme.topCaption = topCaptionInput.value;
     meme.bottomCaption = bottomCaptionInput.value;
 
-    context.font = "20px Impact";
+    context.font = "20px Anton";
     context.textAlign = "center";
     context.lineWidth = 3;
 

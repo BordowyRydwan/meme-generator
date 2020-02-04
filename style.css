@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css?family=Cabin&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Anton&display=swap');
 
 *{
     box-sizing: border-box;
@@ -11,7 +12,6 @@ html, body{
     width: 100vw;
     height: 100vh;
     display: flex;
-    align-items: center;
 }
 
 .app-container{
@@ -19,8 +19,7 @@ html, body{
     flex-direction: column;
     max-width: 600px;
     margin: 0 auto;
-    align-items: center;
-    justify-self: center;
+    padding: 20px 10px;
 }
 
 canvas{
@@ -94,16 +93,14 @@ h1{
 
 @media (min-width: 800px){
     .app-container{
-        display: flex;
         flex-direction: row;
+        align-items: center;
     }
 
     form{
         min-width: 400px;
         display: flex;
         flex-direction: column;
-        justify-content: center;
-        align-items: center;
         padding: 0 30px;
     }
 
