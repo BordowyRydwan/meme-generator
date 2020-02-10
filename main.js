@@ -22,13 +22,15 @@ let meme = {
 let image = new Image();
 
 const textWrap = (text, isTop) => {
-    const lineHeight = 30;
+
     const maxLineWidth = canvas.width - 20;
+    const fontSize = canvas.height / 15;
+    const lineHeight = fontSize * 1.5;
 
     if(isTop){
-        yPos = 25;
+        yPos = fontSize * 1.25;
     } else{
-        yPos = meme.height - 10;
+        yPos = meme.height - fontSize * 0.5;
     }
 
     let words = text.slice(' ');
@@ -51,6 +53,8 @@ const textWrap = (text, isTop) => {
 
     lines = isTop ? lines : lines.reverse();
 
+    context.font = `${fontSize}px Anton`;
+
     lines.forEach(textLine => {
 
         context.fillStyle = "rgba(0, 0, 0, 0.5)";
@@ -69,7 +73,12 @@ const downloadImage = () => {
 };
 
 const resizeImage = (height, width) => {
-    let maxCanvasSize = 300;
+    let maxCanvasSize = Math.min(window.innerHeight - 50, window.innerWidth - 50);
+    
+    if(height < maxCanvasSize && width < maxCanvasSize){
+        maxCanvasSize = Math.max(height, width);
+    }
+
     const zoom = Math.max(height, width) / maxCanvasSize;
 
     if(height > width){
@@ -113,9 +122,6 @@ const canvasImageRender = () => {
         canvas.height = size.y;
         canvas.width = size.x;
 
-        /*canvas.style.width = meme.width;
-        canvas.style.height = meme.height;*/
-
         context.drawImage(currentImage, 0, 0, meme.width, meme.height);
     }, false);
 
@@ -123,7 +129,6 @@ const canvasImageRender = () => {
 };
 
 const canvasTextRender = () => {
-    const fontSize = 20;
 
     context.clearRect(0, 0, meme.width, meme.height);
     context.drawImage(image, 0, 0, meme.width, meme.height);
@@ -131,7 +136,7 @@ const canvasTextRender = () => {
     meme.topCaption = topCaptionInput.value;
     meme.bottomCaption = bottomCaptionInput.value;
 
-    context.font = `${fontSize}px Anton`;
+
     context.textAlign = "center";
     context.lineWidth = 5;
 
@@ -142,6 +147,8 @@ const canvasTextRender = () => {
 topCaptionInput.addEventListener("keyup", canvasTextRender, false);
 bottomCaptionInput.addEventListener("keyup", canvasTextRender, false);
 imageInput.addEventListener("change", canvasImageRender, false);
-imageInput.addEventListener("change", canvasTextRender, false);
 
 downloadButton.addEventListener("click", downloadImage, false);
+
+window.addEventListener('resize', canvasImageRender);
+window.addEventListener('resize', canvasTextRender);
