@@ -1,16 +1,13 @@
-const canvas = document.querySelector('canvas');
-const context = canvas.getContext('2d');
+const canvas = document.querySelector('canvas'),
+      context = canvas.getContext('2d'),
 
-const topCaptionInput = document.querySelector('#topCaption');
-const bottomCaptionInput = document.querySelector('#bottomCaption');
-const imageInput = document.querySelector('#imageFile');
-const downloadButton = document.querySelector('#download');
+      topCaptionInput = document.querySelector('#topCaption'),
+      bottomCaptionInput = document.querySelector('#bottomCaption'),
+      imageInput = document.querySelector('#imageFile'),
+      downloadButton = document.querySelector('#download');
 
 canvas.height = 300;
 canvas.width = 300;
-
-canvas.style.width = 300;
-canvas.style.height = 300;
 
 let meme = {
     width: canvas.width,
@@ -21,7 +18,7 @@ let meme = {
 
 let image = new Image();
 
-const textWrap = (text, isTop) => {
+const printWrappedText = (text, isTop) => {
 
     const maxLineWidth = canvas.width - 20;
     const fontSize = canvas.height / 15;
@@ -35,23 +32,25 @@ const textWrap = (text, isTop) => {
 
     let words = text.slice(' ');
     let line = '';
-    let n = 0;
+    let numberOfLines = 1;
 
     for(let i = 0; i < words.length; ++i){
 
         line += words[i];
 
-        const lineWidth = context.measureText(line).width - n*meme.width;
+        const lineWidth = context.measureText(line).width - (numberOfLines - 1) * meme.width;
 
         if(lineWidth > maxLineWidth){
-            line += 'space';
-            n += 1;
+            line += '\n';
+            numberOfLines += 1;
         };
     }
 
-    let lines = line.split('space');
+    let lines = line.split('\n');
 
-    lines = isTop ? lines : lines.reverse();
+    if(isTop){
+        lines = lines.reverse();
+    }
 
     context.font = `${fontSize}px Anton`;
 
@@ -64,6 +63,12 @@ const textWrap = (text, isTop) => {
         context.fillText(textLine, meme.width/2, yPos);
 
         isTop ? yPos += lineHeight : yPos -= lineHeight;
+
+        if(isTop){
+            yPos += lineHeight;
+        } else{
+            yPos -= lineHeight;
+        }
     
     });
 }
@@ -119,8 +124,8 @@ const canvasImageRender = () => {
         meme.width = size.x;
         meme.height = size.y;
     
-        canvas.height = size.y;
         canvas.width = size.x;
+        canvas.height = size.y;
 
         context.drawImage(currentImage, 0, 0, meme.width, meme.height);
     }, false);
@@ -140,14 +145,13 @@ const canvasTextRender = () => {
     context.textAlign = "center";
     context.lineWidth = 5;
 
-    textWrap(meme.topCaption, true);
-    textWrap(meme.bottomCaption, false);
+    printWrappedText(meme.topCaption, true);
+    printWrappedText(meme.bottomCaption, false);
 };
 
 topCaptionInput.addEventListener("keyup", canvasTextRender, false);
 bottomCaptionInput.addEventListener("keyup", canvasTextRender, false);
 imageInput.addEventListener("change", canvasImageRender, false);
-
 downloadButton.addEventListener("click", downloadImage, false);
 
 window.addEventListener('resize', canvasImageRender);

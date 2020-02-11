@@ -30,7 +30,7 @@ html, body{
 }
 
 canvas{
-    border: 3px gray dashed;
+    border: 3px rgb(173, 173, 173) dashed;
     margin-bottom: 50px;
     background-color: rgba(255, 255, 255, 0.5);
 }
@@ -87,8 +87,8 @@ h1{
     z-index: -1;
 }
 
-.form__input:last-child a,
-.form__input:last-child label{
+.form__input:last-child > a,
+.form__input:last-child > label{
     border: 1px rgb(145, 145, 145) solid;
     padding: 10px 20px;
     color: white;
