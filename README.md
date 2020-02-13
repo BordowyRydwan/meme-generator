@@ -1,4 +1,5 @@
 # Meme generator
+  Quick meme generator using HTML5 Canvas API
 
 # Link
 https://pawluch.github.io/meme-generator/
