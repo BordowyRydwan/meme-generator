@@ -13,7 +13,7 @@ let meme = {
     width: canvas.width,
     height: canvas.height,
     topCaption: '', 
-    bottomCaption: '',
+    bottomCaption: ''
 };
 
 let image = new Image();
@@ -23,6 +23,7 @@ const printWrappedText = (text, isTop) => {
     const maxLineWidth = canvas.width - 20;
     const fontSize = canvas.height / 15;
     const lineHeight = fontSize * 1.5;
+    let yPos;
 
     if(isTop){
         yPos = fontSize * 1.25;
@@ -32,13 +33,13 @@ const printWrappedText = (text, isTop) => {
 
     let words = text.slice(' ');
     let line = '';
-    let numberOfLines = 1;
+    let numberOfLines = 0;
 
     for(let i = 0; i < words.length; ++i){
 
         line += words[i];
 
-        const lineWidth = context.measureText(line).width - (numberOfLines - 1) * meme.width;
+        const lineWidth = context.measureText(line).width - numberOfLines * meme.width;
 
         if(lineWidth > maxLineWidth){
             line += '\n';
@@ -46,10 +47,10 @@ const printWrappedText = (text, isTop) => {
         };
     }
 
-    let lines = line.split('\n');
+    let lines = [...line.split('\n')];
 
-    if(isTop){
-        lines = lines.reverse();
+    if(!isTop){
+        lines = [...lines.reverse()];
     }
 
     context.font = `${fontSize}px Anton`;
@@ -61,8 +62,6 @@ const printWrappedText = (text, isTop) => {
 
         context.fillStyle = "rgba(255, 255, 255, 1.0)";
         context.fillText(textLine, meme.width/2, yPos);
-
-        isTop ? yPos += lineHeight : yPos -= lineHeight;
 
         if(isTop){
             yPos += lineHeight;
