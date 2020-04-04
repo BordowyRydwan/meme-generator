@@ -23,6 +23,7 @@ const printWrappedText = (text, isTop) => {
     const maxLineWidth = canvas.width - 20;
     const fontSize = canvas.height / 15;
     const lineHeight = fontSize * 1.5;
+    const frameWidth = 0.10 * fontSize; 
     let yPos;
 
     if(isTop){
@@ -54,6 +55,7 @@ const printWrappedText = (text, isTop) => {
     }
 
     context.font = `${fontSize}px Anton`;
+    context.lineWidth = frameWidth;
 
     lines.forEach(textLine => {
 
@@ -140,9 +142,7 @@ const canvasTextRender = () => {
     meme.topCaption = topCaptionInput.value;
     meme.bottomCaption = bottomCaptionInput.value;
 
-
     context.textAlign = "center";
-    context.lineWidth = 5;
 
     printWrappedText(meme.topCaption, true);
     printWrappedText(meme.bottomCaption, false);
