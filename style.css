@@ -98,6 +98,10 @@ h1{
 
 }
 
+label{
+    cursor: pointer;
+}
+
 @media (min-width: 800px){
     .app-container{
         flex-direction: row;
