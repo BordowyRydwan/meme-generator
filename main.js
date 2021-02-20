@@ -1,157 +1,237 @@
-const canvas = document.querySelector('canvas'),
-      context = canvas.getContext('2d'),
+const INITIAL_CANVAS_WIDTH = 300;
+const INITIAL_CANVAS_HEIGHT = 300;
 
-      topCaptionInput = document.querySelector('#topCaption'),
-      bottomCaptionInput = document.querySelector('#bottomCaption'),
-      imageInput = document.querySelector('#imageFile'),
-      downloadButton = document.querySelector('#download');
+class MemeModel {
 
-canvas.height = 300;
-canvas.width = 300;
+    getImageFile(upload){
+        let image = new Image();
 
-let meme = {
-    width: canvas.width,
-    height: canvas.height,
-    topCaption: '', 
-    bottomCaption: ''
-};
+        if (upload.files && upload.files[0]) {
+            let reader = new FileReader();
 
-let image = new Image();
+            reader.addEventListener("load", e => {
+                image.src = e.target.result;
+            })
 
-const printWrappedText = (text, isTop) => {
-
-    const maxLineWidth = canvas.width - 20;
-    const fontSize = canvas.height / 15;
-    const lineHeight = fontSize * 1.5;
-    const frameWidth = 0.10 * fontSize; 
-    let yPos;
-
-    if(isTop){
-        yPos = fontSize * 1.25;
-    } else{
-        yPos = meme.height - fontSize * 0.5;
-    }
-
-    let words = text.slice(' ');
-    let line = '';
-    let numberOfLines = 0;
-
-    for(let i = 0; i < words.length; ++i){
-
-        line += words[i];
-
-        const lineWidth = context.measureText(line).width - numberOfLines * meme.width;
-
-        if(lineWidth > maxLineWidth){
-            line += '\n';
-            numberOfLines += 1;
-        };
-    }
-
-    let lines = [...line.split('\n')];
-
-    if(!isTop){
-        lines = [...lines.reverse()];
-    }
-
-    context.font = `${fontSize}px Anton`;
-    context.lineWidth = frameWidth;
-
-    lines.forEach(textLine => {
-
-        context.fillStyle = "rgba(0, 0, 0, 0.5)";
-        context.strokeText(textLine, meme.width/2, yPos);
-
-        context.fillStyle = "rgba(255, 255, 255, 1.0)";
-        context.fillText(textLine, meme.width/2, yPos);
-
-        if(isTop){
-            yPos += lineHeight;
-        } else{
-            yPos -= lineHeight;
+            reader.readAsDataURL(upload.files[0]);
         }
-    
-    });
+
+        return image;
+    }
+
+    parseCaptionsToView(captions, width, font){
+        const maxLineWidth = width - 40;
+        const dummyCanvas = document.createElement('canvas');
+        const dummyContext = dummyCanvas.getContext('2d');
+
+        let parsedCaptionsObject = {};
+
+        dummyContext.font = font;
+        dummyContext.width = width;
+
+        for(let [key, value] of Object.entries(captions)){
+            let line = '';
+            let numberOfLines = 0;
+            let captionObject = {
+                text: null,
+            };
+
+            value.split(' ').forEach(word => {
+                line += word + ' ';
+
+                if(dummyContext.measureText(line).width - numberOfLines * (width - 40) > maxLineWidth){
+                    line += '\n';
+                    numberOfLines++;
+                }
+            });
+
+            captionObject.text = line.split('\n');
+            parsedCaptionsObject[key + 'Lines'] = captionObject;
+        }
+
+        parsedCaptionsObject.bottomLines.text = parsedCaptionsObject.bottomLines.text.reverse();
+
+        return parsedCaptionsObject;
+    }
 }
 
-const downloadImage = () => {
-    downloadButton.href = canvas.toDataURL("image/jpeg");
-};
-
-const resizeImage = (height, width) => {
-    let maxCanvasSize = Math.min(window.innerHeight - 50, window.innerWidth - 50);
-    
-    if(height < maxCanvasSize && width < maxCanvasSize){
-        maxCanvasSize = Math.max(height, width);
-    }
-
-    const zoom = Math.max(height, width) / maxCanvasSize;
-
-    if(height > width){
-        height = maxCanvasSize;
-        width /= zoom;
-    } else{
-        width = maxCanvasSize;
-        height /= zoom;
-    };
-
-    return {
-        x: width,
-        y: height
-    };
-};
-
-const canvasImageRender = () => {
+class MemeView {
+    canvas = document.querySelector('canvas');
+    context = this.canvas.getContext('2d');
     image = new Image();
 
-    if(imageInput.files && imageInput.files[0]){
-        let reader = new FileReader();
+    constructor(){
+        this.canvas.width = INITIAL_CANVAS_WIDTH;
+        this.canvas.height = INITIAL_CANVAS_HEIGHT;
+    } 
 
-        reader.addEventListener("load", e => {
-            image.src = e.target.result;
-        })
-
-        reader.readAsDataURL(imageInput.files[0]);
+    clear(){
+        this.context.clearRect(0, 0, this.width, this.height);
+        this.context.drawImage(this.image, 0, 0, this.width, this.height);
     }
 
-    image.addEventListener("load", e => {
-        const currentImage = e.target;
+    setNewImageOnView(image){ 
+        const FORM_OFFSET = window.innerWidth > 900 ? 400 : 0;
+        const MAX_IMAGE_HEIGHT = window.innerHeight - 50;
+        const MAX_IMAGE_WIDTH = window.innerWidth - 50 - FORM_OFFSET;
 
-        const size = resizeImage(currentImage.height, currentImage.width);
+        image.addEventListener("load", e => {
+            const currentImage = e.target;
+            let {width: imageWidth, height: imageHeight} = currentImage;
+            
+            if (imageHeight > MAX_IMAGE_HEIGHT || imageWidth > MAX_IMAGE_WIDTH){
+                const maxCanvasSize = Math.min(MAX_IMAGE_WIDTH, MAX_IMAGE_HEIGHT);
+                const maxImageDimension = Math.max(imageWidth, imageHeight);
 
-        currentImage.width = size.x;
-        currentImage.height = size.y;
+                const zoom = maxCanvasSize / maxImageDimension;
+                
+                imageWidth *= zoom;
+                imageHeight *= zoom;
+            }
 
-        meme.width = size.x;
-        meme.height = size.y;
-    
-        canvas.width = size.x;
-        canvas.height = size.y;
+            this.width = imageWidth;
+            this.height = imageHeight;
+            
+            this.context.drawImage(currentImage, 0, 0, imageWidth, imageHeight);
+        });
 
-        context.drawImage(currentImage, 0, 0, meme.width, meme.height);
-    }, false);
+        this.image = image; //saving image into object field for reloading purposes;
+    }
 
-    canvasTextRender();
-};
+    reloadImageOnView(){
+        this.context.drawImage(this.image, 0, 0, this.width, this.height);
+    }
 
-const canvasTextRender = () => {
+    setTextOnView(parsedCaptions){
+        const fontSize = this.canvas.height / 15;
+        const lineHeight = fontSize * 1.5;
+        const frameWidth = 0.1 * fontSize;
 
-    context.clearRect(0, 0, meme.width, meme.height);
-    context.drawImage(image, 0, 0, meme.width, meme.height);
+        const topY = fontSize * 1.25;
+        const bottomY = this.height - fontSize * 0.5;
 
-    meme.topCaption = topCaptionInput.value;
-    meme.bottomCaption = bottomCaptionInput.value;
+        let {topLines, bottomLines} = parsedCaptions;
 
-    context.textAlign = "center";
+        this.fontSize = fontSize;
+        this.context.textAlign = "center";
+        this.context.lineWidth = frameWidth;
 
-    printWrappedText(meme.topCaption, true);
-    printWrappedText(meme.bottomCaption, false);
-};
+        topLines.position = topY;
+        topLines.shift = lineHeight;
 
-topCaptionInput.addEventListener("keyup", canvasTextRender, false);
-bottomCaptionInput.addEventListener("keyup", canvasTextRender, false);
-imageInput.addEventListener("change", canvasImageRender, false);
-downloadButton.addEventListener("click", downloadImage, false);
+        bottomLines.position = bottomY;
+        bottomLines.shift = -lineHeight;
 
-window.addEventListener('resize', canvasImageRender);
-window.addEventListener('resize', canvasTextRender);
+        for(let captionObj of Object.values(parsedCaptions)){
+            let {position, shift} = captionObj;
+
+            for(let line of captionObj.text){
+                //set frame of text
+                this.context.fillStyle = "rgba(0, 0, 0, 0.5)";
+                this.context.strokeText(line, this.width / 2, position);
+        
+                //set text
+                this.context.fillStyle = "rgba(255, 255, 255, 1.0)";
+                this.context.fillText(line, this.width / 2, position);
+
+                position += shift;
+            }
+        }
+    }
+
+    updateFontSize(){
+        this.fontSize = this.canvas.height / 15;
+    }
+
+    set width(size) {
+        this.canvas.width = size;
+    }
+
+    get width() {
+        return this.canvas.width;
+    }
+
+    set height(size) {
+        this.canvas.height = size;
+    }
+
+    get height() {
+        return this.canvas.height;
+    }
+
+    set fontSize(size){
+        this.context.font = `${size}px Anton`;
+    }
+
+    get font(){
+        return this.context.font;
+    }
+}
+
+class MemeController {
+    topCaptionInput = document.querySelector('#topCaption') || '';
+    bottomCaptionInput = document.querySelector('#bottomCaption') || '';
+
+    upload = document.querySelector('#imageFile');
+    download = document.querySelector('#download');
+
+    model = new MemeModel();
+    view = new MemeView();
+
+    get captions() {
+        return {
+            top: this.topCaptionInput.value,
+            bottom: this.bottomCaptionInput.value,
+        }
+    }
+
+    downloadMeme(handler){
+        return function (){
+            const {view, download} = handler;
+
+            download.href = view.canvas.toDataURL("image/jpeg");
+        }
+    }
+
+    runEvents(){
+        this.download.addEventListener("click", this.downloadMeme(this));
+        this.upload.addEventListener("change", this.handleImageLoad(this));
+        this.topCaptionInput.addEventListener("keyup", this.setTextOnView(this));
+        this.bottomCaptionInput.addEventListener("keyup", this.setTextOnView(this));
+
+        window.addEventListener('resize', this.reloadImage(this));
+        window.addEventListener('resize', this.setTextOnView(this));
+
+        this.view.updateFontSize();
+    }
+
+    handleImageLoad(handler){
+        return function (){
+            const {model, view} = handler;
+            const image = model.getImageFile(this);
+
+            view.setNewImageOnView(image);
+            handler.setTextOnView(handler);
+        }
+    }
+
+    reloadImage(handler){
+        return function () {
+            handler.view.reloadImageOnView();
+        }
+    }
+
+    setTextOnView(handler){
+        return function (){
+            const {model, view, captions} = handler;
+            const parsedCaptions = model.parseCaptionsToView(captions, view.width, view.font);
+
+            handler.view.clear();
+            handler.view.setTextOnView(parsedCaptions);
+        }
+    }
+}
+
+const memeGenerator = new MemeController();
+
+memeGenerator.runEvents();
